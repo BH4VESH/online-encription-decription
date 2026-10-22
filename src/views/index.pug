@@ -1,0 +1,147 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="color-scheme" content="light")
+    title= title
+    link(rel="stylesheet" href="/css/styles.css")
+    script(src="/js/app.js" defer)
+  body
+    main.page
+      header.page-header
+        div
+          //- p.eyebrow DEVELOPER UTILITY
+          h1 AES Encryption & Decryption
+          //- p.subtitle Test AES payloads directly in your browser.
+        span.status-pill Local tool
+      //- .notice
+      //-   strong Security note:
+      //-   |  Do not paste production secrets or sensitive customer data into a publicly accessible instance. 
+        //- Use HTTPS and access controls before deployment.
+      .workspace
+        section.panel(aria-labelledby="encrypt-title")
+          h2#encrypt-title AES Encryption
+          form.crypto-form#encrypt-form
+            label(for="plaintext") Enter Plain Text to Encrypt
+            textarea#plaintext(name="plaintext" rows="4" required placeholder='Enter text or JSON')
+            .field-row
+              label(for="encrypt-key") Enter Secret Key
+              button.btn.btn-secondary(type="button" data-generate-key="encrypt") Generate key
+            input#encrypt-key(name="key" type="password" autocomplete="off" required placeholder="Enter key in selected format")
+            .field-row
+              label(for="encrypt-key-format") Secret Key Format
+              select#encrypt-key-format(name="keyFormat")
+                option(value="plain") Plain Text
+                option(value="base64") Base64
+                option(value="hex") Hex
+            .field-row
+              label(for="encrypt-mode") Cipher Mode
+              select#encrypt-mode(name="mode")
+                option(value="cbc" selected) CBC 
+                option(value="gcm") GCM (authenticated, Node format)
+            .field-row
+              label(for="encrypt-key-size") Key Size
+              select#encrypt-key-size(name="keySize")
+                option(value="128") 128 bits
+                option(value="192") 192 bits
+                option(value="256" selected) 256 bits
+            .field-row
+              label(for="encrypt-iv") IV (Optional)
+              button.btn.btn-secondary(type="button" data-generate-iv="encrypt") Generate IV
+            input#encrypt-iv(name="iv" autocomplete="off" placeholder="Blank = generate a secure random IV")
+            .field-row
+              label(for="encrypt-iv-format") IV Format
+              select#encrypt-iv-format(name="ivFormat")
+                option(value="plain" selected) Plain Text (UTF-8)
+                option(value="base64") Base64
+                option(value="hex") Hex
+            .field-row
+              label(for="encrypt-payload-format") Encrypted Payload Format
+              select#encrypt-payload-format(name="payloadFormat")
+                option(value="php") PHP-compatible envelope (Base64)
+                option(value="php-hex") PHP-compatible envelope (Hex)
+                option(value="raw-base64" selected) Fixed-IV Node middleware (Raw Base64 ciphertext)
+                option(value="raw-hex") Fixed-IV Node middleware (Raw Hex ciphertext)
+            p.help For your first backend, use Plain Text key + Raw Base64 + the exact fixed IV. For your second backend, use Base64 key + PHP-compatible envelope and leave IV blank.
+            button.btn.btn-primary(type="submit") Encrypt
+            .result-heading
+              label(for="encrypt-output") AES Encrypted Output
+              button.btn.btn-secondary(type="button" data-copy="encrypt-output") Copy
+            textarea#encrypt-output.output(rows="5" readonly placeholder="Encrypted output will appear here")
+            p.help#encrypt-status(role="status" aria-live="polite")
+        section.panel(aria-labelledby="decrypt-title")
+          h2#decrypt-title AES Decryption
+          form.crypto-form#decrypt-form
+            label(for="ciphertext") AES Encrypted Text
+            textarea#ciphertext(name="ciphertext" rows="4" required placeholder="Paste encrypted payload here")
+            .field-row
+              label(for="decrypt-key") Enter Secret Key used for Encryption
+            input#decrypt-key(name="key" type="password" autocomplete="off" required placeholder="Use the same key as encryption")
+            .field-row
+              label(for="decrypt-key-format") Secret Key Format
+              select#decrypt-key-format(name="keyFormat")
+                option(value="plain") Plain Text
+                option(value="base64") Base64
+                option(value="hex") Hex
+            .field-row
+              label(for="decrypt-mode") Cipher Mode
+              select#decrypt-mode(name="mode")
+                option(value="cbc" selected) CBC 
+                option(value="gcm") GCM (Node format)
+            .field-row
+              label(for="decrypt-key-size") Key Size
+              select#decrypt-key-size(name="keySize")
+                option(value="128") 128 bits
+                option(value="192") 192 bits
+                option(value="256" selected) 256 bits
+            .field-row
+              label(for="decrypt-iv") External IV (Optional)
+            input#decrypt-iv(name="iv" autocomplete="off" placeholder="Enter fixed IV for raw ciphertext; leave blank for PHP envelope")
+            .field-row
+              label(for="decrypt-iv-format") IV Format
+              select#decrypt-iv-format(name="ivFormat")
+                option(value="plain" selected) Plain Text (UTF-8)
+                option(value="base64") Base64
+                option(value="hex") Hex
+            .field-row
+              label(for="decrypt-input-format") Input Format
+              select#decrypt-input-format(name="inputFormat")
+                option(value="php") PHP-compatible envelope (Base64)
+                option(value="php-hex") PHP-compatible envelope (Hex)
+                option(value="php-plain") PHP-compatible envelope (Plain Text)
+                option(value="raw-base64" selected) Fixed-IV Node middleware (Raw Base64)
+                option(value="raw-hex") Fixed-IV Node middleware (Raw Hex)
+            button.btn.btn-primary(type="submit") Decrypt
+            .result-heading
+              label(for="decrypt-output") AES Decrypted Output
+              button.btn.btn-secondary(type="button" data-copy="decrypt-output") Copy
+            textarea#decrypt-output.output(rows="5" readonly placeholder="Decrypted output will appear here")
+            p.help#decrypt-status(role="status" aria-live="polite")
+      //- section.panel.utility-panel(aria-labelledby="postman-title")
+      //-   h2#postman-title Postman API Compatibility
+      //-   p.subtitle For the fixed-IV middleware, send the encrypted output as JSON in the data property.
+      //-   pre.code-example.
+      //-     POST /api/mt5/time/convert
+      //-     Content-Type: application/json
+
+      //-     { "data": "PASTE_RAW_BASE64_CIPHERTEXT_HERE" }
+      //-   p.help Use the exact same UTF-8 SECRET_KEY and REQ_AES_IV as your backend. Do not use Base64 key format unless your backend decodes the key from Base64. Your API response will also be encrypted if encryptResponse middleware is active.
+      section.panel.utility-panel(aria-labelledby="base64-title")
+        h2#base64-title Base64 Converter
+        p.subtitle Convert UTF-8 text to Base64 or decode Base64 back to text.
+        form#base64-form
+          label(for="base64-input") Input Text / Base64
+          textarea#base64-input(name="text" rows="4" required placeholder="Enter text to encode, or Base64 text to decode")
+          .field-row
+            label(for="base64-action") Conversion
+            select#base64-action(name="action")
+              option(value="encode") Text → Base64
+              option(value="decode") Base64 → Text
+          button.btn.btn-primary(type="submit") Convert
+          .result-heading
+            label(for="base64-output") Converted Output
+            button.btn.btn-secondary(type="button" data-copy="base64-output") Copy
+          textarea#base64-output.output(rows="4" readonly placeholder="Converted output will appear here")
+          p.help#base64-status(role="status" aria-live="polite")
+      footer.footer © 2026 | All rights reserved.
