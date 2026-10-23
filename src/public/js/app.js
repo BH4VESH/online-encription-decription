@@ -107,13 +107,43 @@
     window.crypto.getRandomValues(bytes);
     return bytes;
   }
-  function encodeBytes(bytes, format) {
-    if (format === 'hex') return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
-    let binary = '';
-    bytes.forEach((b) => { binary += String.fromCharCode(b); });
-    if (format === 'base64') return btoa(binary);
-    return binary;
+function encodeBytes(bytes, format) {
+  if (format === "hex") {
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
   }
+
+  if (format === "base64") {
+    let binary = "";
+    bytes.forEach((b) => {
+      binary += String.fromCharCode(b);
+    });
+    return btoa(binary);
+  }
+
+  if (format === "plain") {
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    let result = "";
+    const maxValid = 256 - (256 % chars.length);
+
+    while (result.length < bytes.length) {
+      const randomBytes = cryptoBytes(bytes.length * 2);
+
+      for (const byte of randomBytes) {
+        if (byte >= maxValid) continue;
+
+        result += chars[byte % chars.length];
+
+        if (result.length === bytes.length) break;
+      }
+    }
+
+    return result;
+  }
+
+  throw new Error(`Unsupported format: ${format}`);
+}
   ['encrypt', 'decrypt'].forEach((side) => {
     $(`#${side}-mode`).addEventListener('change', () => {
       const mode = $(`#${side}-mode`).value;
